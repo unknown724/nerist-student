@@ -56,26 +56,6 @@
       flex-direction: column;
     }
 
-    .tabs {
-      display: flex;
-      padding: 10px 20px;
-      gap: 10px;
-    }
-
-    .tab-button {
-      padding: 10px 20px;
-      border: none;
-      background: #dd63aa;
-      color: white;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    .tab-button.active {
-      background: #8f70d8;
-    }
-
     .main-content {
       flex: 1;
       display: flex;
@@ -84,19 +64,22 @@
       overflow: hidden;
     }
 
-    .sidebar {
-      width: 300px;
+    .chart-panel {
+      width: 100%;
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
       gap: 20px;
-      overflow-y: auto;
+      justify-content: space-around;
     }
 
-    .content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
+    .chart-box {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+      flex: 1 1 40%;
+      min-width: 300px;
     }
 
     .search-box {
@@ -105,7 +88,7 @@
       border-radius: 16px;
       padding: 20px;
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
+      margin: 20px;
     }
 
     input[type="text"] {
@@ -142,54 +125,36 @@
       width: 100% !important;
       height: auto !important;
     }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
   </style>
 </head>
 <body>
   <div class="sidebar-nav">
     <h2>NERIST</h2>
-    <div class="nav-item active">Dashboard</div>
-    <div class="nav-item">Search</div>
-    <div class="nav-item">Charts</div>
+    <div class="nav-item active" onclick="showSection('dashboard')">Dashboard</div>
+    <div class="nav-item" onclick="showSection('charts')">Charts</div>
   </div>
 
   <div class="main">
-    <div class="tabs">
-      <button class="tab-button active" data-tab="state">State</button>
-      <button class="tab-button" data-tab="religion">Religion</button>
-      <button class="tab-button" data-tab="category">Category</button>
-      <button class="tab-button" data-tab="stage">Stage</button>
+    <div id="dashboard" class="search-box">
+      <h1>NERIST Student Search</h1>
+      <input type="text" id="searchInput" placeholder="Enter name, reg no, roll no...">
+      <button id="searchBtn">Search</button>
+      <div id="output">Search results will appear here...</div>
     </div>
 
-    <div class="main-content">
-      <div class="sidebar">
-        <div class="tab-content active" id="tab-state">
+    <div id="charts" class="main-content" style="display: none;">
+      <div class="chart-panel">
+        <div class="chart-box">
           <canvas id="stateChart"></canvas>
         </div>
-        <div class="tab-content" id="tab-religion">
+        <div class="chart-box">
           <canvas id="religionChart"></canvas>
         </div>
-        <div class="tab-content" id="tab-category">
+        <div class="chart-box">
           <canvas id="categoryChart"></canvas>
         </div>
-        <div class="tab-content" id="tab-stage">
+        <div class="chart-box">
           <canvas id="stageChart"></canvas>
-        </div>
-      </div>
-
-      <div class="content">
-        <h1>NERIST Student Search</h1>
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Enter name, reg no, roll no...">
-          <button id="searchBtn">Search</button>
-          <div id="output">Search results will appear here...</div>
         </div>
       </div>
     </div>
@@ -215,29 +180,29 @@
         return counts;
       }
 
-      function renderChart(id, label, counts, type = 'bar') {
+      function renderChart(id, label, counts) {
         const ctx = document.getElementById(id).getContext('2d');
         new Chart(ctx, {
-          type,
+          type: 'pie',
           data: {
             labels: Object.keys(counts),
             datasets: [{
               label,
               data: Object.values(counts),
-              backgroundColor: 'rgba(140, 90, 200, 0.6)',
-              borderRadius: 6
+              backgroundColor: [
+                '#d67ab1', '#8f70d8', '#fcd2e2', '#ddb0ff', '#b287f0', '#ffc9de'
+              ]
             }]
           },
           options: {
             responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { x: { ticks: { color: '#444' } }, y: { beginAtZero: true } }
+            plugins: { legend: { position: 'bottom' } }
           }
         });
       }
 
       renderChart('stateChart', 'By State', countBy('State'));
-      renderChart('religionChart', 'By Religion', countBy('Religion'), 'pie');
+      renderChart('religionChart', 'By Religion', countBy('Religion'));
       renderChart('categoryChart', 'By Category', countBy('Category'));
       renderChart('stageChart', 'By Stage', countBy('Stage'));
     }
@@ -260,15 +225,12 @@
       }
     });
 
-    document.querySelectorAll('.tab-button').forEach(button => {
-      button.addEventListener('click', () => {
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-
-        button.classList.add('active');
-        document.getElementById('tab-' + button.dataset.tab).classList.add('active');
-      });
-    });
+    function showSection(sectionId) {
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      document.querySelectorAll('.main > div').forEach(div => div.style.display = 'none');
+      document.getElementById(sectionId).style.display = 'block';
+      event.target.classList.add('active');
+    }
   </script>
 </body>
 </html>
