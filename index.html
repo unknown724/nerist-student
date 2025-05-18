@@ -120,8 +120,8 @@
 </head>
 <body>
   <div class="sidebar-nav">
-    <div class="nav-icon active" onclick="showSection('dashboard', this)">🏠</div>
-    <div class="nav-icon" onclick="showSection('charts', this)">📊</div>
+    <div class="nav-icon active" onclick="showSection('dashboard', this)" title="Dashboard">📁</div>
+    <div class="nav-icon" onclick="showSection('charts', this)" title="Charts">📈</div>
   </div>
 
   <div class="main">
@@ -172,31 +172,38 @@
         return counts;
       }
 
-      function renderChart(id, label, counts) {
+      function renderChart(id, label, counts, type = 'bar') {
         const ctx = document.getElementById(id).getContext('2d');
         new Chart(ctx, {
-          type: 'pie',
+          type,
           data: {
             labels: Object.keys(counts),
             datasets: [{
               label,
               data: Object.values(counts),
-              backgroundColor: [
-                '#d67ab1', '#8f70d8', '#fcd2e2', '#ddb0ff', '#b287f0', '#ffc9de'
-              ]
+              backgroundColor: 'rgba(140, 90, 200, 0.6)',
+              borderRadius: 6
             }]
           },
           options: {
             responsive: true,
             plugins: {
-              legend: { position: 'bottom' },
+              legend: { display: false },
               tooltip: {
                 callbacks: {
                   label: function(context) {
-                    const label = context.label || '';
-                    const value = context.raw || 0;
-                    return `${label}: ${value}`;
+                    return `${context.label}: ${context.raw}`;
                   }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true
+              },
+              x: {
+                ticks: {
+                  color: '#444'
                 }
               }
             }
